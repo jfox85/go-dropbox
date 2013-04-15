@@ -90,11 +90,11 @@ func (drop *DropboxClient) GetFile(path string) (string, error) {
 
 	res, err := http.Get(fileAPIURL + "?" + params.Encode())
 	if err != nil {
-		fmt.Printf("get file error %v\n",err)
+		fmt.Printf("get file error %v\n", err)
 		return "", err
 	}
 	defer res.Body.Close()
-	
+
 	b, _ := ioutil.ReadAll(res.Body)
 	return string(b), nil
 }
@@ -113,16 +113,16 @@ func (drop *DropboxClient) GetFileMeta(path string) *DropFile {
 
 // puts file contents at a specified path
 func (drop *DropboxClient) PutFile(path string, body string) error {
-	
+
 	params := make(url.Values)
 	params.Add("overwrite", "true")
-	
-	err := drop.putUrl(api_fileput_url + path, params, body)
+
+	err := drop.putUrl(api_fileput_url+path, params, body)
 	if err != nil {
 		fmt.Printf("error putting file: %v", err)
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -131,14 +131,14 @@ func (drop *DropboxClient) putUrl(putUrl string, params url.Values, body string)
 	if params == nil {
 		params = make(url.Values)
 	}
-	
+
 	client := &http.Client{}
-	
+
 	oauthClient.SignParam(drop.Creds, "PUT", putUrl, params)
-	
-	req, err := http.NewRequest("PUT", putUrl + "?" + params.Encode(), strings.NewReader(body))
+
+	req, err := http.NewRequest("PUT", putUrl+"?"+params.Encode(), strings.NewReader(body))
 	_, err = client.Do(req)
-	
+
 	return err
 }
 
@@ -167,11 +167,11 @@ func (drop *DropboxClient) getUrl(getUrl string, params url.Values, data interfa
 }
 
 func apiContentURL(path string) string {
-	fullurl, err := url.Parse(api_content_url + strings.TrimLeft(path,"/"))
+	fullurl, err := url.Parse(api_content_url + strings.TrimLeft(path, "/"))
 	if err != nil {
-		fmt.Printf("url parse error: %v",err)
+		fmt.Printf("url parse error: %v", err)
 	}
-	
+
 	return fullurl.String()
 	// return api_content_url + strings.TrimLeft(path,"/")
 }
