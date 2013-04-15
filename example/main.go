@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/garyburd/go-oauth/oauth"
-	"github.com/nickoneill/go-dropbox"
+	"github.com/jfox85/go-dropbox"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -21,7 +21,7 @@ func main() {
 
 	creds, err := load("config.json")
 	if err != nil {
-		tempcred, err := drop.Oauth.RequestTemporaryCredentials(http.DefaultClient, callback_url)
+		tempcred, err := drop.Oauth.RequestTemporaryCredentials(http.DefaultClient, callback_url, nil)
 		if err != nil {
 			fmt.Printf("err! %v", err)
 			return
@@ -29,12 +29,17 @@ func main() {
 
 		fmt.Printf("token stuff: %v %v\n", tempcred.Token, tempcred.Secret)
 
-		url := drop.Oauth.AuthorizationURL(tempcred)
-		fmt.Printf("auth url: %v\n", url)
+		url := drop.Oauth.AuthorizationURL(tempcred, nil)
+		fmt.Printf("Go to this auth url in your browser: %v\n", url)
 
 		time.Sleep(15e9)
 
 		newcreds, _, err := drop.Oauth.RequestToken(http.DefaultClient, tempcred, "")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
 		fmt.Printf("newcreds: %v", newcreds)
 		err = save("config.json", newcreds.Token, newcreds.Secret)
 
@@ -50,6 +55,12 @@ func main() {
 		fmt.Printf("files: %#v\n", newfilemeta)
 		for i, thing := range newfilemeta.Contents {
 			fmt.Printf("file %v: %#v\n", i, thing)
+		}
+
+		err = drop.PutFile("test", "this is a test")
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
 	}
 }
